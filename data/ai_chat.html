@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Tutor</title>
+    <title>AI Tutor (Coze)</title>
     <link rel="stylesheet" as="style" crossorigin
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -27,7 +27,7 @@
 
         body {
             font-family: 'Pretendard', sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             color: var(--text-color);
             height: 100vh;
             display: flex;
@@ -35,7 +35,6 @@
             font-size: 14px;
         }
 
-        /* Header */
         header {
             padding: 12px 16px;
             background: white;
@@ -62,7 +61,7 @@
             color: #666;
             padding: 4px;
             border-radius: 4px;
-            transition: background 0.2s;
+            transition: background .2s;
         }
 
         .settings-btn:hover {
@@ -70,7 +69,6 @@
             color: var(--primary-color);
         }
 
-        /* Chat Area */
         #chat-container {
             flex: 1;
             overflow-y: auto;
@@ -85,7 +83,7 @@
             display: flex;
             flex-direction: column;
             max-width: 90%;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn .3s ease;
         }
 
         .message.user {
@@ -102,22 +100,21 @@
             padding: 10px 14px;
             border-radius: 12px;
             line-height: 1.5;
-            position: relative;
             word-break: break-word;
             font-size: 14px;
         }
 
         .message.user .bubble {
-            background-color: var(--accent-color);
+            background: var(--accent-color);
             color: white;
             border-bottom-right-radius: 2px;
         }
 
         .message.ai .bubble {
-            background-color: var(--chat-bg-ai);
+            background: var(--chat-bg-ai);
             border: 1px solid var(--border-color);
             border-bottom-left-radius: 2px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
         }
 
         .sender-name {
@@ -131,7 +128,6 @@
             margin-right: 4px;
         }
 
-        /* Input Area */
         .input-area {
             padding: 16px;
             background: white;
@@ -152,7 +148,7 @@
             font-family: inherit;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color .2s;
         }
 
         textarea:focus {
@@ -170,7 +166,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            transition: background .2s;
         }
 
         .send-btn:hover {
@@ -182,14 +178,13 @@
             cursor: not-allowed;
         }
 
-        /* Settings Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, .5);
             display: none;
             align-items: center;
             justify-content: center;
@@ -202,7 +197,7 @@
             border-radius: 12px;
             width: 90%;
             max-width: 320px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
         }
 
         .modal h2 {
@@ -220,14 +215,6 @@
             font-weight: 600;
             margin-bottom: 6px;
             color: #555;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
         }
 
         .modal-actions {
@@ -255,7 +242,6 @@
             color: white;
         }
 
-        /* Loading Indicator */
         .typing-indicator {
             display: flex;
             gap: 4px;
@@ -306,245 +292,80 @@
 </head>
 
 <body>
-
     <header>
         <h1><span class="material-icons-round" style="color:var(--accent-color);">smart_toy</span> AI 튜터 (Coze)</h1>
-        <button class="settings-btn" onclick="openSettings()" title="API 설정">
+        <button class="settings-btn" onclick="openSettings()" title="환경 변수 안내">
             <span class="material-icons-round">settings</span>
         </button>
     </header>
-
     <div id="chat-container">
-        <!-- Welcome Message -->
         <div class="message ai">
             <div class="sender-name">AI Tutor</div>
             <div class="bubble">
-                안녕하세요! 학습 중 궁금한 점이 있다면 언제든 물어보세요. <br>
-                먼저 우측 상단 설정(⚙️) 버튼을 눌러 <strong>Coze API Token</strong>과 <strong>Bot ID</strong>를 등록해주세요.
+                안녕하세요! 학습 중 궁금한 점이 있다면 언제든 물어보세요.<br>
+                Coze API 토큰과 Bot ID는 Vercel 환경 변수에 설정되어 있습니다.
             </div>
         </div>
     </div>
-
     <div class="input-area">
         <textarea id="userInput" placeholder="질문을 입력하세요..." onkeydown="handleKeyDown(event)"></textarea>
-        <button id="sendBtn" class="send-btn" onclick="sendMessage()">
-            <span class="material-icons-round">send</span>
-        </button>
+        <button id="sendBtn" class="send-btn" onclick="sendMessage()"><span
+                class="material-icons-round">send</span></button>
     </div>
-
-    <!-- Settings Modal -->
+    <!-- Settings Modal (informational) -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
-            <h2>API 설정 (Coze)</h2>
-            <div class="form-group">
-                <label for="apiToken">Coze API Token (PAT)</label>
-                <input type="password" id="apiToken" placeholder="pat_..." autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label for="botId">Coze Bot ID</label>
-                <input type="text" id="botId" placeholder="73..." autocomplete="off">
-            </div>
+            <h2>환경 변수 안내</h2>
+            <p>Coze API Token 과 Bot ID는 Vercel 프로젝트 설정 > Environment Variables 에서 지정합니다.</p>
+            <p>키 이름: <code>COZE_API_TOKEN</code> / <code>COZE_BOT_ID</code></p>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeSettings()">취소</button>
-                <button class="btn btn-primary" onclick="saveSettings()">저장</button>
+                <button class="btn btn-primary" onclick="closeSettings()">닫기</button>
             </div>
         </div>
     </div>
-
     <script>
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
         const settingsModal = document.getElementById('settingsModal');
-        const apiTokenInput = document.getElementById('apiToken');
-        const botIdInput = document.getElementById('botId');
-
-        // Load API Key from local storage
-        let apiToken = localStorage.getItem('coze_api_token') || '';
-        let botId = localStorage.getItem('coze_bot_id') || '';
-
-        if (apiToken) apiTokenInput.value = apiToken;
-        if (botId) botIdInput.value = botId;
-
-        function openSettings() {
-            settingsModal.style.display = 'flex';
-        }
-
-        function closeSettings() {
-            settingsModal.style.display = 'none';
-        }
-
-        function saveSettings() {
-            const token = apiTokenInput.value.trim();
-            const bid = botIdInput.value.trim();
-
-            if (token && bid) {
-                localStorage.setItem('coze_api_token', token);
-                localStorage.setItem('coze_bot_id', bid);
-                apiToken = token;
-                botId = bid;
-                alert('설정이 저장되었습니다.');
-                closeSettings();
-            } else {
-                alert('API Token과 Bot ID를 모두 입력해주세요.');
-            }
-        }
-
-        function handleKeyDown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        }
-
+        function openSettings() { settingsModal.style.display = 'flex'; }
+        function closeSettings() { settingsModal.style.display = 'none'; }
+        function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
         function appendMessage(role, text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${role}`;
-
-            const senderDiv = document.createElement('div');
-            senderDiv.className = 'sender-name';
-            senderDiv.innerText = role === 'user' ? '나' : 'AI Tutor';
-
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'bubble';
-            bubbleDiv.innerHTML = text.replace(/\n/g, '<br>'); // Simple line break handling
-
-            msgDiv.appendChild(senderDiv);
-            msgDiv.appendChild(bubbleDiv);
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            const msgDiv = document.createElement('div'); msgDiv.className = `message ${role}`;
+            const sender = document.createElement('div'); sender.className = 'sender-name'; sender.innerText = role === 'user' ? '나' : 'AI Tutor';
+            const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.innerHTML = text.replace(/\n/g, '<br>');
+            msgDiv.appendChild(sender); msgDiv.appendChild(bubble); chatContainer.appendChild(msgDiv); chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-
         function showLoading() {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message ai loading-msg';
-            msgDiv.innerHTML = `
-                <div class="sender-name">AI Tutor</div>
-                <div class="bubble">
-                    <div class="typing-indicator">
-                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                    </div>
-                </div>`;
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            return msgDiv;
+            const msgDiv = document.createElement('div'); msgDiv.className = 'message ai loading-msg';
+            msgDiv.innerHTML = `<div class="sender-name">AI Tutor</div><div class="bubble"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+            chatContainer.appendChild(msgDiv); chatContainer.scrollTop = chatContainer.scrollHeight; return msgDiv;
         }
-
         async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            if (!apiToken || !botId) {
-                alert('API 설정이 필요합니다. 우측 상단 설정 버튼을 눌러 Token과 Bot ID를 입력해주세요.');
-                openSettings();
-                return;
-            }
-
-            // User Message
+            const text = userInput.value.trim(); if (!text) return;
             appendMessage('user', text);
-            userInput.value = '';
-            userInput.style.height = '44px'; // Reset height
-
-            // Loading
+            userInput.value = ''; userInput.style.height = '44px';
             const loadingMsg = showLoading();
-
             try {
-                // Coze API V3 Chat Endpoint
-                const response = await fetch('https://api.coze.com/v3/chat', {
+                const resp = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiToken}`
-                    },
-                    body: JSON.stringify({
-                        bot_id: botId,
-                        user_id: 'user_' + Date.now(), // Simple unique ID
-                        stream: false,
-                        auto_save_history: true,
-                        additional_messages: [
-                            {
-                                role: 'user',
-                                content: text,
-                                content_type: 'text'
-                            }
-                        ]
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
                 });
-
-                const data = await response.json();
-
-                if (data.code !== 0) {
-                    chatContainer.removeChild(loadingMsg);
-                    appendMessage('ai', `오류가 발생했습니다: ${data.msg || 'Unknown error'}`);
-                    return;
-                }
-
-                const chatId = data.data.id;
-                const conversationId = data.data.conversation_id;
-
-                // Poll for completion
-                let status = data.data.status;
-                let attempts = 0;
-
-                // Polling loop
-                while (status === 'in_progress' && attempts < 30) {
-                    await new Promise(r => setTimeout(r, 1000)); // Wait 1s
-
-                    const pollRes = await fetch(`https://api.coze.com/v3/chat/retrieve?chat_id=${chatId}&conversation_id=${conversationId}`, {
-                        headers: { 'Authorization': `Bearer ${apiToken}` }
-                    });
-                    const pollData = await pollRes.json();
-
-                    if (pollData.code === 0) {
-                        status = pollData.data.status;
-                    } else {
-                        status = 'error'; // Stop polling on error
-                    }
-                    attempts++;
-                }
-
+                const data = await resp.json();
                 chatContainer.removeChild(loadingMsg);
-
-                if (status === 'completed') {
-                    // Get Messages
-                    const msgRes = await fetch(`https://api.coze.com/v3/chat/message/list?chat_id=${chatId}&conversation_id=${conversationId}`, {
-                        headers: { 'Authorization': `Bearer ${apiToken}` }
-                    });
-                    const msgData = await msgRes.json();
-
-                    if (msgData.code === 0) {
-                        // Find the answer from the bot (assistant)
-                        // Filter messages that are from assistant and type is answer
-                        const botMessages = msgData.data.filter(m => m.role === 'assistant' && m.type === 'answer');
-
-                        if (botMessages.length > 0) {
-                            // The last one is usually the final answer
-                            const lastMsg = botMessages[botMessages.length - 1];
-                            appendMessage('ai', lastMsg.content);
-                        } else {
-                            appendMessage('ai', '답변을 찾을 수 없습니다.');
-                        }
-                    } else {
-                        appendMessage('ai', '메시지를 불러오는 중 오류가 발생했습니다.');
-                    }
-                } else {
-                    appendMessage('ai', `응답 시간이 초과되었거나 오류가 발생했습니다. (Status: ${status})`);
-                }
-
-            } catch (error) {
+                if (data.error) { appendMessage('ai', `오류: ${data.error}`); }
+                else { appendMessage('ai', data.reply); }
+            } catch (err) {
                 if (document.body.contains(loadingMsg)) chatContainer.removeChild(loadingMsg);
-                appendMessage('ai', `네트워크 오류가 발생했습니다. 다시 시도해주세요.`);
-                console.error(error);
+                appendMessage('ai', '네트워크 오류가 발생했습니다.');
+                console.error(err);
             }
         }
-
-        // Auto-resize textarea
+        // Auto‑resize textarea
         userInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-            if (this.value === '') this.style.height = '44px';
+            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; if (this.value === '') this.style.height = '44px';
         });
-
     </script>
 </body>
 
