@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>디지털 교재 학습 플랫폼 핵심 기능 인포그래픽</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .wrapper {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid #dbeafe;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #2563eb;
+    }
+
+    h1 {
+      margin: 12px 0 8px;
+      font-size: 28px;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0 0 28px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+
+    .category-card {
+      position: relative;
+      border-radius: 18px;
+      padding: 16px 16px 18px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .category-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+      background: #ffffff;
+    }
+
+    .category-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: #eef2ff;
+      border: 1px solid #e0e7ff;
+    }
+
+    .feature-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-item {
+      padding: 8px 8px 9px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .feature-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .feature-users {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #dbeafe;
+      flex-shrink: 0;
+    }
+
+    .feature-desc {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #4b5563;
+    }
+
+    .legend {
+      margin-top: 28px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed #e5e7eb;
+      background: #f9fafb;
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    .legend strong {
+      color: #111827;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="badge">
+      <span class="badge-dot"></span>
+       디지털 콘텐츠 전환 TF  </div>
+    <h1>디지털 교재 학습 플랫폼 핵심 기능 맵</h1>
+    <p class="subtitle">계정·접근관리부터 AI 학습지원, 출판사·보안 기능까지 한눈에 정리</p>
+
+    <div class="grid">
+      <!-- 계정/접근관리 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">🔐</span>
+            <span>계정·접근 관리</span>
+          </div>
+          <span class="category-pill">학생 · 교수 · 관리자</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">회원가입/로그인</span>
+              <span class="feature-users">학생/교수/관리자</span>
+            </div>
+            <p class="feature-desc">이메일·카카오톡 간편 로그인 지원 및 대학 소속 정보 수집으로 맞춤형 계정 생성.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">역할 관리</span>
+              <span class="feature-users">전체</span>
+            </div>
+            <p class="feature-desc">학생, 교수, 관리자 권한을 분리하여 화면·기능·데이터 접근 범위를 세분화.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">접근 권한</span>
+              <span class="feature-users">전체</span>
+            </div>
+            <p class="feature-desc">ISBN(도서) 단위로 접근 권한을 제어하여 교재별 라이선스 관리 및 보안 강화.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 교재뷰어 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">📖</span>
+            <span>교재 뷰어</span>
+          </div>
+          <span class="category-pill">학습 경험 UX</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">PDF 뷰어</span>
+              <span class="feature-users">학생/교수</span>
+            </div>
+            <p class="feature-desc">종이책과 동일한 고정 레이아웃 PDF 및 HTML 재구성 콘텐츠를 모두 지원.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">목차 탐색</span>
+              <span class="feature-users">학생/교수</span>
+            </div>
+            <p class="feature-desc">TOC(목차) 기반 챕터·섹션 이동으로 원하는 학습 구간에 빠르게 도달.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">하이라이트/메모/필기</span>
+              <span class="feature-users">학생/교수</span>
+            </div>
+            <p class="feature-desc">사용자 주석·메모·필기를 클라우드에 저장하고, 기기 간 동기화하여 지속 학습 지원.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- AI 학습지원 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">🤖</span>
+            <span>AI 학습 지원</span>
+          </div>
+          <span class="category-pill">개인 맞춤 학습</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">AI 생성 쉬운 해설 패널</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">본문 텍스트를 클릭하면 난이도를 낮춘 쉬운 해설을 패널에서 바로 제공.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">AI 강의 영상 패널</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">쉬운 해설을 기반으로 자동 생성된 슬라이드·보이스 강의 영상으로 재학습.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">AI 생성 연습문제 패널</span>
+              <span class="feature-users">학생/교수</span>
+            </div>
+            <p class="feature-desc">객관식·단답형·계산형 등 다양한 문제 유형을 탑재하고, 가능 시 자동 채점 기능 연동.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">AI 챗봇 Q&amp;A</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">본문 기반 질의응답이 가능한 전용 챗봇 영역으로, 언제든 질문하고 즉시 답변 확인.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 학습관리 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">📊</span>
+            <span>학습 관리</span>
+          </div>
+          <span class="category-pill">러닝 분석</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">학습 진도</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">페이지·챕터 단위 완료율을 기록하여 학습 현황 및 누락 구간을 시각화.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">학습 시간</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">교재·챕터별 총 학습 시간을 자동 집계해 학습 몰입도와 패턴을 파악.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">대시보드</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">최근 학습 이력, 성취도, 오답노트(채점 기반 기능, 추후 확정)를 한 화면에서 제공.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">학습 보고서 생성</span>
+              <span class="feature-users">학생</span>
+            </div>
+            <p class="feature-desc">학습 데이터 기반으로 일일·주간 학습 보고서를 PDF로 자동 생성하여 공유 가능.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 출판사 기능 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">🏢</span>
+            <span>출판사 운영 기능</span>
+          </div>
+          <span class="category-pill">TF · 편집팀</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">AI 생성 콘텐츠 관리</span>
+              <span class="feature-users">TF</span>
+            </div>
+            <p class="feature-desc">AI가 생성한 해설·연습문제 콘텐츠를 업로드해 승인·거절·수정을 관리.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">PDF → 벡터 DB</span>
+              <span class="feature-users">TF</span>
+            </div>
+            <p class="feature-desc">문단 단위로 교재를 벡터화하여 검색 인덱스를 구축, AI 검색·질문 응답의 기반 데이터로 활용.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">저자 검수 모드</span>
+              <span class="feature-users">TF</span>
+            </div>
+            <p class="feature-desc">AI 결과물과 원문을 나란히 비교·리뷰하고, 저자가 승인·수정할 수 있는 전용 화면 제공.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">버전 관리</span>
+              <span class="feature-users">TF</span>
+            </div>
+            <p class="feature-desc">AI 생성 이력과 변경 내역을 버전별로 추적하여 품질 관리 및 롤백을 지원.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 보안 -->
+      <section class="category-card">
+        <div class="category-header">
+          <div class="category-title">
+            <span class="category-icon">🛡️</span>
+            <span>보안 · 저작권 보호</span>
+          </div>
+          <span class="category-pill">플랫폼 공통</span>
+        </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">데이터 암호화</span>
+              <span class="feature-users">전체</span>
+            </div>
+            <p class="feature-desc">사용자 계정 및 학습 데이터를 암호화 저장하여 개인정보 및 학습 이력 보호.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">통신 보안</span>
+              <span class="feature-users">전체</span>
+            </div>
+            <p class="feature-desc">HTTPS 최신 보안 프로토콜 적용으로 전 구간 암호화 통신을 보장.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-top">
+              <span class="feature-name">콘텐츠 DRM</span>
+              <span class="feature-users">전체</span>
+            </div>
+            <p class="feature-desc">중복 로그인 방지, 동시 열람 제한 등 DRM 정책으로 디지털 교재 불법 복제를 차단.</p>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    </div>
+</body>
+</html>

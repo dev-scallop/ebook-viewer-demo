@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart E-Book Viewer</title>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <!-- Material Icons for UI elements -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --sidebar-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --primary-color: #333333;
+            --accent-color: #2563eb;
+            --text-color: #212529;
+            --panel-width-left: 320px;
+            --panel-width-right: 400px;
+            --bottom-bar-height: 60px;
+            --left-sidebar-width: 60px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: var(--text-color);
+        }
+
+        /* --- Middle Area (Left Sidebar + Left Panel + Main Viewer + Right Panel) --- */
+        .middle-area {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - var(--bottom-bar-height));
+            position: relative;
+        }
+
+        /* 1. Left Icon Sidebar (Fixed) */
+        .left-sidebar {
+            width: var(--left-sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            gap: 24px;
+            z-index: 20;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #5f6368;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover,
+        .icon-btn.active {
+            background: #f1f3f4;
+            color: var(--text-color);
+        }
+
+        .icon-btn span {
+            font-size: 24px;
+        }
+
+        /* 2. Left Panel (Drawer - TOC) */
+        .left-panel {
+            width: var(--panel-width-left);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: absolute;
+            left: var(--left-sidebar-width);
+            top: 0;
+            bottom: 0;
+            z-index: 15;
+            transform: translateX(0);
+            /* Default Open as per image */
+        }
+
+        .left-panel.closed {
+            transform: translateX(-100%);
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .tab-group {
+            display: flex;
+            margin: 0 20px;
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #5f6368;
+        }
+
+        .tab.active {
+            background: white;
+            color: black;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-cover-area {
+            padding: 0 20px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .book-cover {
+            width: 120px;
+            height: 160px;
+            background: #eee;
+            margin: 0 auto 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info h3 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .book-info p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .toc-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .toc-item {
+            padding: 12px 24px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .toc-item:hover {
+            background: #f8f9fa;
+        }
+
+        .toc-item.active {
+            color: var(--accent-color);
+            font-weight: 600;
+            background: #eff6ff;
+        }
+
+        .page-num {
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* 3. Main Viewer */
+        .main-viewer {
+            flex: 1;
+            background: #525659;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-left: var(--panel-width-left);
+            margin-right: 0;
+            transition: margin-left 0.3s ease;
+            /* Only animate left margin */
+        }
+
+        .main-viewer.full-width {
+            margin-left: 0;
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 4. Right Panel Container (Resizer + Panel) */
+        .right-panel-container {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            z-index: 15;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .right-panel-container.open {
+            transform: translateX(0);
+            transition: none;
+            /* Disable transition during resize */
+        }
+
+        .resizer {
+            width: 5px;
+            background: transparent;
+            cursor: col-resize;
+            z-index: 20;
+            transition: background 0.2s;
+        }
+
+        .resizer:hover,
+        .resizer.resizing {
+            background: var(--accent-color);
+        }
+
+        .right-panel {
+            width: var(--panel-width-right);
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.05);
+            /* Ensure width is respected */
+            flex-shrink: 0;
+        }
+
+        .right-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .right-content {
+            flex: 1;
+            overflow: hidden;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        .tool-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- Bottom Bar --- */
+        .bottom-bar {
+            height: var(--bottom-bar-height);
+            background: white;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 30;
+        }
+
+        .bottom-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            color: #5f6368;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover,
+        .tool-btn.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .bottom-center {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+        }
+
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .complete-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .page-indicator {
+            background: #f1f3f4;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* --- Video Player Style --- */
+        .video-wrapper {
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            flex-direction: column;
+        }
+
+        video {
+            width: 100%;
+            flex: 1;
+        }
+
+        .video-info {
+            padding: 16px;
+            background: white;
+            height: 150px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="middle-area" id="middleArea">
+        <!-- 1. Left Sidebar (Icons) -->
+        <div class="left-sidebar">
+            <button class="icon-btn" title="홈"><span class="material-icons-round">home</span></button>
+            <button class="icon-btn active" title="목차" onclick="toggleLeftPanel()"><span
+                    class="material-icons-round">format_list_bulleted</span></button>
+            <button class="icon-btn" title="노트"><span class="material-icons-round">edit_note</span></button>
+            <button class="icon-btn" title="북마크"><span class="material-icons-round">bookmark_border</span></button>
+            <button class="icon-btn" title="검색"><span class="material-icons-round">search</span></button>
+            <div style="flex:1"></div>
+            <button class="icon-btn" title="설정"><span class="material-icons-round">settings</span></button>
+        </div>
+
+        <!-- 2. Left Panel (TOC) -->
+        <div class="left-panel" id="leftPanel">
+            <div class="panel-header">
+                <span class="panel-title">목차</span>
+                <span class="material-icons-round" style="cursor:pointer; font-size:18px;"
+                    onclick="toggleLeftPanel()">close</span>
+            </div>
+
+            <div class="tab-group">
+                <div class="tab active">책</div>
+                <div class="tab">강의</div>
+            </div>
+
+            <div class="book-cover-area">
+                <div class="book-cover">
+                    <!-- Updated Book Cover -->
+                    <img src="https://cdn-prod.hanbit.co.kr/books/dfc131ce-41c7-4663-a70b-8f6e46aee2ae.jpg"
+                        alt="Book Cover">
+                </div>
+                <div class="book-info">
+                    <h3>지속가능경영과 ESG의 10가지 이론적 토대</h3>
+                    <p>10가지 핵심이론의 주요 내용</p>
+                </div>
+            </div>
+
+            <div class="toc-list">
+                <!-- PART 01 -->
+                <div class="toc-item part-header"
+                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none;"><span>PART 01 지속가능경영과
+                        ESG의 필요성</span></div>
+
+                <div class="toc-item"><span>CHAPTER 01 지속가능경영이란 무엇인가</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.1 지속가능성의 개념</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.2 지속가능경영의 이론적 체계와 진화
+                        과정</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.3 브룬트란드 보고서와 SDGs</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.4 경제적·환경적·사회적 지속가능성</span>
+                </div>
+
+                <div class="toc-item"><span>CHAPTER 02 ESG 경영이란 무엇인가</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.1 ESG 경영의 정의</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.2 ESG 경영의 3가지 핵심 요소</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.3 CSR과 ESG 경영의 차이</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.4 ESG 경영의 효과와 실증적 성과</span>
+                </div>
+
+                <div class="toc-item"><span>CHAPTER 03 지속가능경영과 ESG의 관계</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.1 개념 비교</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.2 지속가능경영을 목표로 하는 이유</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.3 ESG 투자와 기업 가치</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.4 실행 체계로서의 지속가능경영</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.5 성과 평가 및 공시</span></div>
+
+                <div class="toc-item"><span>CHAPTER 04 10가지 이론적 토대</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.1 현상에서 본질로: 왜 이론이 필요한가</span>
+                </div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.2 10가지 이론 렌즈</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.3 이론에서 실행으로</span></div>
+
+                <!-- PART 02 -->
+                <div class="toc-item part-header"
+                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
+                    <span>PART 02 이론적 프레임</span></div>
+
+                <div class="toc-item"><span>CHAPTER 05 혼합가치이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.4 사례 연구: 파타고니아</span></div>
+
+                <div class="toc-item"><span>CHAPTER 06 공유가치이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.4 사례 연구: 네슬레</span></div>
+
+                <div class="toc-item"><span>CHAPTER 07 이해관계자이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.4 사례 연구: 스타벅스</span></div>
+
+                <div class="toc-item"><span>CHAPTER 08 기업시민이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.4 사례 연구: 막스앤드스펜서</span></div>
+
+                <div class="toc-item"><span>CHAPTER 09 사회자본이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.4 사례 연구: 레고 그룹</span></div>
+
+                <div class="toc-item"><span>CHAPTER 10 제도이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.4 사례 연구: 다농</span></div>
+
+                <div class="toc-item"><span>CHAPTER 11 자원의존이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.4 사례 연구: 일라이 릴리</span></div>
+
+                <div class="toc-item"><span>CHAPTER 12 거래비용이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.4 사례 연구: 아마존</span></div>
+
+                <div class="toc-item"><span>CHAPTER 13 사회혁신이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.4 사례 연구: 무라다이 실험</span>
+                </div>
+
+                <div class="toc-item"><span>CHAPTER 14 하이브리드조직이론</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.1 개념 및 특징</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.3 지속가능경영과 ESG</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.4 사례 연구: 테라사이클</span></div>
+
+                <!-- PART 03 -->
+                <div class="toc-item part-header"
+                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
+                    <span>PART 03 미래와 전망</span></div>
+
+                <div class="toc-item"><span>CHAPTER 15 한계와 도전</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.1 선언적 구호의 한계</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.5 그린워싱과 신뢰 위기</span></div>
+
+                <div class="toc-item"><span>CHAPTER 16 거시적 과제</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.1 법제화와 정책</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.3 재무적 통합</span></div>
+
+                <div class="toc-item"><span>CHAPTER 17 미시적 실천 전략</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.1 조직 역량 강화</span></div>
+                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.4 성과 측정과 개선</span></div>
+            </div>
+        </div>
+
+        <!-- 3. Main Viewer -->
+        <div class="main-viewer" id="mainViewer">
+            <iframe src="./data/text.pdf" class="pdf-frame"></iframe>
+        </div>
+
+        <!-- 4. Right Panel Container (Resizer + Panel) -->
+        <div class="right-panel-container" id="rightPanelContainer">
+            <div class="resizer" id="resizer"></div>
+            <div class="right-panel" id="rightPanel">
+                <div class="right-header">
+                    <span id="rightPanelTitle">학습 도구</span>
+                    <button class="close-btn" onclick="closeRightPanel()"><span
+                            class="material-icons-round">close</span></button>
+                </div>
+                <div class="right-content" id="rightContent">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Bottom Bar -->
+    <div class="bottom-bar">
+        <div class="bottom-left">
+            <!-- Tools Toggles -->
+            <button class="tool-btn" title="강의 영상" onclick="openRightPanel('video', '강의 영상')">
+                <span class="material-icons-round">play_circle_outline</span>
+            </button>
+            <button class="tool-btn" title="쉬운 해설" onclick="openRightPanel('explain', '쉬운 해설')">
+                <span class="material-icons-round">menu_book</span>
+            </button>
+            <button class="tool-btn" title="연습 문제" onclick="openRightPanel('quiz', '연습 문제')">
+                <span class="material-icons-round">quiz</span>
+            </button>
+            <button class="tool-btn" title="AI 챗봇" onclick="openRightPanel('chat', 'AI 튜터')">
+                <span class="material-icons-round">smart_toy</span>
+            </button>
+        </div>
+
+        <div class="bottom-center">
+            <button class="nav-btn"><span class="material-icons-round">chevron_left</span></button>
+            <span>Chapter 01. 집합과 함수</span>
+            <button class="nav-btn"><span class="material-icons-round">chevron_right</span></button>
+        </div>
+
+        <div class="bottom-right">
+            <div class="page-indicator">13 / 325</div>
+            <button class="complete-btn">완료하기</button>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            leftOpen: true,
+            rightOpen: false,
+            currentTool: null
+        };
+
+        const els = {
+            leftPanel: document.getElementById('leftPanel'),
+            rightPanelContainer: document.getElementById('rightPanelContainer'),
+            rightPanel: document.getElementById('rightPanel'),
+            mainViewer: document.getElementById('mainViewer'),
+            rightContent: document.getElementById('rightContent'),
+            rightTitle: document.getElementById('rightPanelTitle'),
+            toolBtns: document.querySelectorAll('.tool-btn'),
+            resizer: document.getElementById('resizer'),
+            middleArea: document.getElementById('middleArea')
+        };
+
+        // --- Left Panel Toggle ---
+        function toggleLeftPanel() {
+            state.leftOpen = !state.leftOpen;
+            if (state.leftOpen) {
+                els.leftPanel.classList.remove('closed');
+                els.mainViewer.style.marginLeft = 'var(--panel-width-left)';
+            } else {
+                els.leftPanel.classList.add('closed');
+                els.mainViewer.style.marginLeft = '0';
+            }
+        }
+
+        // --- Right Panel Control ---
+        function openRightPanel(toolType, title) {
+            // Update Title
+            els.rightTitle.innerText = title;
+
+            // Update Active Button State
+            els.toolBtns.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Load Content
+            let contentHtml = '';
+            if (toolType === 'video') {
+                contentHtml = `
+                    <div class="video-wrapper">
+                        <video controls autoplay style="width:100%; height:auto; max-height:100%;">
+                            <source src="./data/lecture_video.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-info" style="padding:16px; background:white; height:150px; overflow-y:auto;">
+                            <h3 style="font-size:15px; margin-bottom:8px;">${title}</h3>
+                            <p style="font-size:13px; color:#555; line-height:1.5;">이 영상은 현재 학습 중인 챕터의 핵심 개념을 설명합니다.</p>
+                        </div>
+                    </div>`;
+            } else if (toolType === 'explain') {
+                contentHtml = `<iframe src="./data/easy_explanation.html" class="tool-frame"></iframe>`;
+            } else if (toolType === 'quiz') {
+                contentHtml = `<iframe src="./data/practice_quiz.html" class="tool-frame"></iframe>`;
+            } else if (toolType === 'chat') {
+                contentHtml = `<iframe src="./data/ai_chat.html" class="tool-frame"></iframe>`;
+            }
+
+            els.rightContent.innerHTML = contentHtml;
+
+            // Open Panel
+            if (!state.rightOpen) {
+                state.rightOpen = true;
+                els.rightPanelContainer.classList.add('open');
+                updateMainViewerMargin();
+            }
+        }
+
+        function closeRightPanel() {
+            state.rightOpen = false;
+            els.rightPanelContainer.classList.remove('open');
+            els.mainViewer.style.marginRight = '0';
+            els.toolBtns.forEach(btn => btn.classList.remove('active'));
+        }
+
+        function updateMainViewerMargin() {
+            if (state.rightOpen) {
+                // Get current width of right panel
+                const rightWidth = els.rightPanel.offsetWidth;
+                els.mainViewer.style.marginRight = rightWidth + 'px';
+            } else {
+                els.mainViewer.style.marginRight = '0';
+            }
+        }
+
+        // --- Resizer Logic ---
+        let isResizing = false;
+
+        els.resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            els.resizer.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // Prevent text selection
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            // Calculate new width
+            // Right panel width = Window Width - Mouse X
+            // But we need to consider the sidebar/resizer offset if needed.
+            // Simplest: container is flex-row, right panel is absolute right.
+            // Width = Total Width - Mouse X Position
+
+            const containerWidth = els.middleArea.offsetWidth;
+            const newWidth = containerWidth - e.clientX;
+
+            // Min/Max constraints
+            if (newWidth > 200 && newWidth < 800) {
+                document.documentElement.style.setProperty('--panel-width-right', newWidth + 'px');
+                // If panel is open, update margin immediately
+                if (state.rightOpen) {
+                    els.mainViewer.style.marginRight = newWidth + 'px';
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                els.resizer.classList.remove('resizing');
+                document.body.style.cursor = 'default';
+                document.body.style.userSelect = 'auto';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

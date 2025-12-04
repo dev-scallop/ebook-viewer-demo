@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Digital Textbook Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --primary-dark: #1d4ed8;
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --bg-body: #f3f4f6;
+            --bg-panel: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --header-height: 60px;
+            --sidebar-width: 400px;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        header {
+            height: var(--header-height);
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* --- Main Layout --- */
+        main {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - var(--header-height));
+            position: relative;
+        }
+
+        /* --- PDF Viewer Area --- */
+        .viewer-container {
+            flex: 1;
+            background: #525659;
+            /* PDF Viewer Background Color */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        iframe.pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .placeholder-msg {
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* --- AI Sidebar --- */
+        .ai-sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 5;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg-body);
+            border-radius: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            background: #f9fafb;
+            position: relative;
+        }
+
+        .content-panel {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .content-panel.active {
+            display: flex;
+        }
+
+        /* --- Iframe Containers for Tools --- */
+        .tool-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* --- Video Player Styling --- */
+        .video-wrapper {
+            width: 100%;
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 16/9;
+        }
+
+        video {
+            width: 100%;
+            max-height: 100%;
+        }
+
+        .video-info {
+            padding: 20px;
+            background: white;
+            flex: 1;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .video-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        /* --- Chat Interface Mockup --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.ai {
+            background: white;
+            border: 1px solid var(--border);
+            align-self: flex-start;
+            border-top-left-radius: 2px;
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 2px;
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+
+            .ai-sidebar {
+                width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+
+            .viewer-container {
+                height: 50vh;
+            }
+        }
+
+        /* --- Floating Action Button (Mobile Toggle) --- */
+        .fab-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            z-index: 100;
+            border: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .fab-toggle {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">📚</div>
+            <span>Smart Edu Viewer</span>
+        </div>
+        <div class="header-controls">
+            <div class="user-profile">
+                <span>김학생</span>
+                <div class="avatar">S</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Left: PDF Viewer -->
+        <div class="viewer-container">
+            <!-- PDF.js or Native Viewer via Iframe -->
+            <iframe id="main-pdf" class="pdf-frame" src="./data/text.pdf"></iframe>
+
+            <!-- Fallback if PDF fails to load -->
+            <div id="pdf-fallback" class="placeholder-msg" style="display:none;">
+                <h3>PDF를 로드할 수 없습니다.</h3>
+                <p>파일 경로를 확인하거나 브라우저 설정을 확인해주세요.</p>
+            </div>
+        </div>
+
+        <!-- Right: AI Sidebar -->
+        <aside class="ai-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('explain')">쉬운 해설</button>
+                    <button class="tab-btn" onclick="switchTab('video')">강의 영상</button>
+                    <button class="tab-btn" onclick="switchTab('quiz')">연습 문제</button>
+                    <button class="tab-btn" onclick="switchTab('chat')">AI 튜터</button>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Tab 1: Easy Explanation -->
+                <div id="panel-explain" class="content-panel active">
+                    <iframe src="./data/easy_explanation.html" class="tool-frame"
+                        onerror="this.srcdoc='<div style=\'padding:20px; text-align:center; color:#666;\'><h3>해설 로딩 실패</h3><p>data/easy_explanation.html 파일을 찾을 수 없습니다.</p></div>'"></iframe>
+                </div>
+
+                <!-- Tab 2: Video Lecture -->
+                <div id="panel-video" class="content-panel">
+                    <div class="video-wrapper">
+                        <video controls poster="./data/ui/통합뷰어-0.png">
+                            <source src="./data/lecture_video.mp4" type="video/mp4">
+                            비디오를 재생할 수 없습니다.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">Chapter 1. 핵심 개념 강의</h3>
+                        <p class="video-desc">AI가 생성한 맞춤형 강의 영상입니다. 본문의 난이도를 분석하여 학생 수준에 맞는 설명을 제공합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Practice Quiz -->
+                <div id="panel-quiz" class="content-panel">
+                    <iframe src="./data/practice_quiz.html" class="tool-frame"
+                        onerror="this.srcdoc='<div style=\'padding:20px; text-align:center; color:#666;\'><h3>퀴즈 로딩 실패</h3><p>data/practice_quiz.html 파일을 찾을 수 없습니다.</p></div>'"></iframe>
+                </div>
+
+                <!-- Tab 4: AI Chatbot -->
+                <div id="panel-chat" class="content-panel">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-box">
+                            <div class="message ai">
+                                안녕하세요! 👋<br>오늘 공부하다가 궁금한 점이 생기면 언제든 물어보세요.
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" placeholder="질문을 입력하세요..."
+                                onkeypress="handleEnter(event)">
+                            <button class="send-btn" onclick="sendMessage()">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <button class="fab-toggle" onclick="toggleSidebar()">🤖</button>
+
+    <script>
+        // --- Tab Switching Logic ---
+        function switchTab(tabId) {
+            // 1. Update Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 2. Update Panels
+            document.querySelectorAll('.content-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById('panel-' + tabId).classList.add('active');
+        }
+
+        // --- Chat Simulation Logic ---
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // User Message
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // AI Response Simulation
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="message ai">네, "${message}"에 대해 설명해 드릴게요.<br><br>이 내용은 교재 14페이지의 핵심 개념과 관련이 있습니다. 더 자세한 예시가 필요하신가요?</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        // --- Mobile Sidebar Toggle ---
+        let isSidebarOpen = false;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            isSidebarOpen = !isSidebarOpen;
+
+            if (window.innerWidth <= 768) {
+                sidebar.style.display = isSidebarOpen ? 'flex' : 'none';
+                sidebar.style.position = 'absolute';
+                sidebar.style.bottom = '0';
+                sidebar.style.height = '60vh';
+                sidebar.style.width = '100%';
+                sidebar.style.borderTop = '1px solid var(--border)';
+            }
+        }
+
+        // --- Error Handling for PDF ---
+        const pdfFrame = document.getElementById('main-pdf');
+        pdfFrame.onerror = function () {
+            document.getElementById('pdf-fallback').style.display = 'block';
+            pdfFrame.style.display = 'none';
+        };
+    </script>
+</body>
+
+</html>
