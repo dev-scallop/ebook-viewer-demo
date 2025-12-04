@@ -18,7 +18,7 @@
             --accent-color: #2563eb;
             --text-color: #212529;
             --panel-width-left: 320px;
-            --panel-width-right: 400px;
+            --panel-width-right: 500px;
             --bottom-bar-height: 60px;
             --left-sidebar-width: 60px;
         }
@@ -407,6 +407,112 @@
             height: 150px;
             overflow-y: auto;
         }
+
+        /* --- Left Panel Views --- */
+        .panel-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .panel-view.active {
+            display: flex;
+        }
+
+        /* Memo View */
+        .memo-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .memo-textarea {
+            flex: 1;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .memo-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .save-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Bookmark & Search Lists */
+        .list-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .list-item:hover {
+            background: #f8f9fa;
+        }
+
+        .list-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .list-item-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Search Box */
+        .search-box {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .search-btn-action {
+            padding: 8px 12px;
+            background: #f1f3f4;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .search-btn-action:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 
@@ -415,152 +521,227 @@
     <div class="middle-area" id="middleArea">
         <!-- 1. Left Sidebar (Icons) -->
         <div class="left-sidebar">
-            <button class="icon-btn" title="홈"><span class="material-icons-round">home</span></button>
-            <button class="icon-btn active" title="목차" onclick="toggleLeftPanel()"><span
+            <button class="icon-btn" title="홈" onclick="location.reload()"><span
+                    class="material-icons-round">home</span></button>
+            <button class="icon-btn active" id="btn-toc" title="목차" onclick="switchLeftPanel('toc')"><span
                     class="material-icons-round">format_list_bulleted</span></button>
-            <button class="icon-btn" title="노트"><span class="material-icons-round">edit_note</span></button>
-            <button class="icon-btn" title="북마크"><span class="material-icons-round">bookmark_border</span></button>
-            <button class="icon-btn" title="검색"><span class="material-icons-round">search</span></button>
+            <button class="icon-btn" id="btn-memo" title="노트" onclick="switchLeftPanel('memo')"><span
+                    class="material-icons-round">edit_note</span></button>
+            <button class="icon-btn" id="btn-bookmark" title="북마크" onclick="switchLeftPanel('bookmark')"><span
+                    class="material-icons-round">bookmark_border</span></button>
+            <button class="icon-btn" id="btn-search" title="검색" onclick="switchLeftPanel('search')"><span
+                    class="material-icons-round">search</span></button>
             <div style="flex:1"></div>
             <button class="icon-btn" title="설정"><span class="material-icons-round">settings</span></button>
         </div>
 
-        <!-- 2. Left Panel (TOC) -->
+        <!-- 2. Left Panel (Drawer) -->
         <div class="left-panel" id="leftPanel">
             <div class="panel-header">
-                <span class="panel-title">목차</span>
+                <span class="panel-title" id="leftPanelTitle">목차</span>
                 <span class="material-icons-round" style="cursor:pointer; font-size:18px;"
                     onclick="toggleLeftPanel()">close</span>
             </div>
 
-            <div class="tab-group">
-                <div class="tab active">책</div>
-                <div class="tab">강의</div>
+            <!-- View: TOC -->
+            <div id="tocView" class="panel-view active">
+                <div class="tab-group">
+                    <div class="tab active">책</div>
+                    <div class="tab">강의</div>
+                </div>
+
+                <div class="book-cover-area">
+                    <div class="book-cover">
+                        <img src="https://cdn-prod.hanbit.co.kr/books/dfc131ce-41c7-4663-a70b-8f6e46aee2ae.jpg"
+                            alt="Book Cover">
+                    </div>
+                    <div class="book-info">
+                        <h3>지속가능경영과 ESG의 10가지 이론적 토대</h3>
+                        <p>10가지 핵심이론의 주요 내용</p>
+                    </div>
+                </div>
+
+                <div class="toc-list">
+                    <!-- PART 01 -->
+                    <div class="toc-item part-header"
+                        style="background-color: #f1f3f4; font-weight: bold; pointer-events: none;"><span>PART 01
+                            지속가능경영과
+                            ESG의 필요성</span></div>
+
+                    <div class="toc-item"><span>CHAPTER 01 지속가능경영이란 무엇인가</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.1 지속가능성의 개념</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.2 지속가능경영의 이론적 체계와 진화
+                            과정</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.3 브룬트란드 보고서와 SDGs</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.4 경제적·환경적·사회적
+                            지속가능성</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 02 ESG 경영이란 무엇인가</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.1 ESG 경영의 정의</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.2 ESG 경영의 3가지 핵심
+                            요소</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.3 CSR과 ESG 경영의 차이</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.4 ESG 경영의 효과와 실증적
+                            성과</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 03 지속가능경영과 ESG의 관계</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.1 개념 비교</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.2 지속가능경영을 목표로 하는
+                            이유</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.3 ESG 투자와 기업 가치</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.4 실행 체계로서의 지속가능경영</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.5 성과 평가 및 공시</span></div>
+
+                    <div class="toc-item"><span>CHAPTER 04 10가지 이론적 토대</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.1 현상에서 본질로: 왜 이론이
+                            필요한가</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.2 10가지 이론 렌즈</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.3 이론에서 실행으로</span></div>
+
+                    <!-- PART 02 -->
+                    <div class="toc-item part-header"
+                        style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
+                        <span>PART 02 이론적 프레임</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 05 혼합가치이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.4 사례 연구: 파타고니아</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 06 공유가치이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.4 사례 연구: 네슬레</span></div>
+
+                    <div class="toc-item"><span>CHAPTER 07 이해관계자이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.4 사례 연구: 스타벅스</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 08 기업시민이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.4 사례 연구: 막스앤드스펜서</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 09 사회자본이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.4 사례 연구: 레고 그룹</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 10 제도이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.4 사례 연구: 다농</span></div>
+
+                    <div class="toc-item"><span>CHAPTER 11 자원의존이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.4 사례 연구: 일라이 릴리</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 12 거래비용이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.4 사례 연구: 아마존</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 13 사회혁신이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.4 사례 연구: 무라다이 실험</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 14 하이브리드조직이론</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.1 개념 및 특징</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.3 지속가능경영과 ESG</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.4 사례 연구: 테라사이클</span>
+                    </div>
+
+                    <!-- PART 03 -->
+                    <div class="toc-item part-header"
+                        style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
+                        <span>PART 03 미래와 전망</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 15 한계와 도전</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.1 선언적 구호의 한계</span>
+                    </div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.5 그린워싱과 신뢰 위기</span>
+                    </div>
+
+                    <div class="toc-item"><span>CHAPTER 16 거시적 과제</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.1 법제화와 정책</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.3 재무적 통합</span></div>
+
+                    <div class="toc-item"><span>CHAPTER 17 미시적 실천 전략</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.1 조직 역량 강화</span></div>
+                    <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.4 성과 측정과 개선</span></div>
+                </div>
             </div>
 
-            <div class="book-cover-area">
-                <div class="book-cover">
-                    <!-- Updated Book Cover -->
-                    <img src="https://cdn-prod.hanbit.co.kr/books/dfc131ce-41c7-4663-a70b-8f6e46aee2ae.jpg"
-                        alt="Book Cover">
-                </div>
-                <div class="book-info">
-                    <h3>지속가능경영과 ESG의 10가지 이론적 토대</h3>
-                    <p>10가지 핵심이론의 주요 내용</p>
+            <!-- View: Memo -->
+            <div id="memoView" class="panel-view">
+                <div class="memo-container">
+                    <textarea class="memo-textarea" id="memoText" placeholder="학습 내용을 자유롭게 메모하세요..."></textarea>
+                    <button class="save-btn" onclick="saveMemo()">저장하기</button>
                 </div>
             </div>
 
-            <div class="toc-list">
-                <!-- PART 01 -->
-                <div class="toc-item part-header"
-                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none;"><span>PART 01 지속가능경영과
-                        ESG의 필요성</span></div>
-
-                <div class="toc-item"><span>CHAPTER 01 지속가능경영이란 무엇인가</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.1 지속가능성의 개념</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.2 지속가능경영의 이론적 체계와 진화
-                        과정</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.3 브룬트란드 보고서와 SDGs</span>
+            <!-- View: Bookmark -->
+            <div id="bookmarkView" class="panel-view">
+                <div class="toc-list">
+                    <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                        <div class="list-item-title">Chapter 01 - 지속가능성의 개념</div>
+                        <div class="list-item-desc">Page 15 • 2024.12.01</div>
+                    </div>
+                    <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                        <div class="list-item-title">Chapter 03 - ESG 경영의 정의</div>
+                        <div class="list-item-desc">Page 42 • 2024.12.02</div>
+                    </div>
+                    <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                        <div class="list-item-title">Chapter 05 - 파타고니아 사례</div>
+                        <div class="list-item-desc">Page 88 • 2024.12.03</div>
+                    </div>
                 </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">1.4 경제적·환경적·사회적 지속가능성</span>
+            </div>
+
+            <!-- View: Search -->
+            <div id="searchView" class="panel-view">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="검색어 입력 (예: ESG)">
+                    <button class="search-btn-action" onclick="performSearch()"><span
+                            class="material-icons-round">search</span></button>
                 </div>
-
-                <div class="toc-item"><span>CHAPTER 02 ESG 경영이란 무엇인가</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.1 ESG 경영의 정의</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.2 ESG 경영의 3가지 핵심 요소</span>
+                <div class="toc-list" id="searchResults">
+                    <!-- Results will appear here -->
+                    <div style="padding:20px; text-align:center; color:#888; font-size:13px;">
+                        검색어를 입력하고 버튼을 누르세요.
+                    </div>
                 </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.3 CSR과 ESG 경영의 차이</span>
-                </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">2.4 ESG 경영의 효과와 실증적 성과</span>
-                </div>
-
-                <div class="toc-item"><span>CHAPTER 03 지속가능경영과 ESG의 관계</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.1 개념 비교</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.2 지속가능경영을 목표로 하는 이유</span>
-                </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.3 ESG 투자와 기업 가치</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.4 실행 체계로서의 지속가능경영</span>
-                </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">3.5 성과 평가 및 공시</span></div>
-
-                <div class="toc-item"><span>CHAPTER 04 10가지 이론적 토대</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.1 현상에서 본질로: 왜 이론이 필요한가</span>
-                </div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.2 10가지 이론 렌즈</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">4.3 이론에서 실행으로</span></div>
-
-                <!-- PART 02 -->
-                <div class="toc-item part-header"
-                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
-                    <span>PART 02 이론적 프레임</span></div>
-
-                <div class="toc-item"><span>CHAPTER 05 혼합가치이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">5.4 사례 연구: 파타고니아</span></div>
-
-                <div class="toc-item"><span>CHAPTER 06 공유가치이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">6.4 사례 연구: 네슬레</span></div>
-
-                <div class="toc-item"><span>CHAPTER 07 이해관계자이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">7.4 사례 연구: 스타벅스</span></div>
-
-                <div class="toc-item"><span>CHAPTER 08 기업시민이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">8.4 사례 연구: 막스앤드스펜서</span></div>
-
-                <div class="toc-item"><span>CHAPTER 09 사회자본이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">9.4 사례 연구: 레고 그룹</span></div>
-
-                <div class="toc-item"><span>CHAPTER 10 제도이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">10.4 사례 연구: 다농</span></div>
-
-                <div class="toc-item"><span>CHAPTER 11 자원의존이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">11.4 사례 연구: 일라이 릴리</span></div>
-
-                <div class="toc-item"><span>CHAPTER 12 거래비용이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">12.4 사례 연구: 아마존</span></div>
-
-                <div class="toc-item"><span>CHAPTER 13 사회혁신이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">13.4 사례 연구: 무라다이 실험</span>
-                </div>
-
-                <div class="toc-item"><span>CHAPTER 14 하이브리드조직이론</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.1 개념 및 특징</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.3 지속가능경영과 ESG</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">14.4 사례 연구: 테라사이클</span></div>
-
-                <!-- PART 03 -->
-                <div class="toc-item part-header"
-                    style="background-color: #f1f3f4; font-weight: bold; pointer-events: none; margin-top: 10px;">
-                    <span>PART 03 미래와 전망</span></div>
-
-                <div class="toc-item"><span>CHAPTER 15 한계와 도전</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.1 선언적 구호의 한계</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">15.5 그린워싱과 신뢰 위기</span></div>
-
-                <div class="toc-item"><span>CHAPTER 16 거시적 과제</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.1 법제화와 정책</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">16.3 재무적 통합</span></div>
-
-                <div class="toc-item"><span>CHAPTER 17 미시적 실천 전략</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.1 조직 역량 강화</span></div>
-                <div class="toc-item" style="padding-left: 40px;"><span class="page-num">17.4 성과 측정과 개선</span></div>
             </div>
         </div>
 
@@ -605,7 +786,7 @@
 
         <div class="bottom-center">
             <button class="nav-btn"><span class="material-icons-round">chevron_left</span></button>
-            <span>Chapter 01. 집합과 함수</span>
+            <span>Chapter 03. 지속가능경영과 ESG의 관계</span>
             <button class="nav-btn"><span class="material-icons-round">chevron_right</span></button>
         </div>
 
@@ -632,7 +813,10 @@
             rightTitle: document.getElementById('rightPanelTitle'),
             toolBtns: document.querySelectorAll('.tool-btn'),
             resizer: document.getElementById('resizer'),
-            middleArea: document.getElementById('middleArea')
+            middleArea: document.getElementById('middleArea'),
+            // New Elements
+            leftPanelTitle: document.getElementById('leftPanelTitle'),
+            leftSidebarBtns: document.querySelectorAll('.left-sidebar .icon-btn')
         };
 
         // --- Left Panel Toggle ---
@@ -645,6 +829,78 @@
                 els.leftPanel.classList.add('closed');
                 els.mainViewer.style.marginLeft = '0';
             }
+        }
+
+        // --- Switch Left Panel Views ---
+        function switchLeftPanel(mode) {
+            // 1. Ensure Panel is Open
+            if (!state.leftOpen) {
+                toggleLeftPanel();
+            }
+
+            // 2. Update Sidebar Buttons
+            els.leftSidebarBtns.forEach(btn => btn.classList.remove('active'));
+            const btnId = 'btn-' + mode;
+            const activeBtn = document.getElementById(btnId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // 3. Hide All Views
+            document.querySelectorAll('.panel-view').forEach(view => view.classList.remove('active'));
+
+            // 4. Show Selected View & Update Title
+            if (mode === 'toc') {
+                document.getElementById('tocView').classList.add('active');
+                els.leftPanelTitle.innerText = '목차';
+            } else if (mode === 'memo') {
+                document.getElementById('memoView').classList.add('active');
+                els.leftPanelTitle.innerText = '노트';
+            } else if (mode === 'bookmark') {
+                document.getElementById('bookmarkView').classList.add('active');
+                els.leftPanelTitle.innerText = '북마크';
+            } else if (mode === 'search') {
+                document.getElementById('searchView').classList.add('active');
+                els.leftPanelTitle.innerText = '검색';
+            }
+        }
+
+        // --- Feature Demos ---
+        function saveMemo() {
+            const text = document.getElementById('memoText').value;
+            if (text.trim() === '') {
+                alert('내용을 입력해주세요.');
+                return;
+            }
+            // Simulate saving
+            alert('노트가 저장되었습니다!');
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (query === '') {
+                resultsContainer.innerHTML = '<div style="padding:20px; text-align:center; color:#888; font-size:13px;">검색어를 입력하세요.</div>';
+                return;
+            }
+
+            // Dummy Search Logic
+            resultsContainer.innerHTML = `
+                <div style="padding:10px 20px; font-size:13px; color:#666; background:#f8f9fa;">
+                    '${query}' 검색 결과 (3건)
+                </div>
+                <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                    <div class="list-item-title">Chapter 01 - 지속가능성의 개념</div>
+                    <div class="list-item-desc">...${query} 관련 내용이 포함된... (Page 12)</div>
+                </div>
+                <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                    <div class="list-item-title">Chapter 03 - ESG 경영의 정의</div>
+                    <div class="list-item-desc">...${query}의 핵심 요소는... (Page 45)</div>
+                </div>
+                <div class="list-item" onclick="alert('해당 페이지로 이동합니다.')">
+                    <div class="list-item-title">Chapter 15 - 한계와 도전</div>
+                    <div class="list-item-desc">...${query}와 관련된 미래 전망... (Page 210)</div>
+                </div>
+            `;
         }
 
         // --- Right Panel Control ---
@@ -727,7 +983,7 @@
             const newWidth = containerWidth - e.clientX;
 
             // Min/Max constraints
-            if (newWidth > 200 && newWidth < 800) {
+            if (newWidth > 200 && newWidth < 1000) {
                 document.documentElement.style.setProperty('--panel-width-right', newWidth + 'px');
                 // If panel is open, update margin immediately
                 if (state.rightOpen) {
