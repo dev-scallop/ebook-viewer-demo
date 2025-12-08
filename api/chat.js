@@ -55,6 +55,8 @@ export default async function handler(req, res) {
     // 2️⃣ Poll for completion (max 30 attempts, 1s interval)
     let status = createData.data.status;
     let attempts = 0;
+    let lastError = null;
+
     while (status === 'in_progress' && attempts < 30) {
       await new Promise((r) => setTimeout(r, 1000));
       const pollResp = await fetch(
@@ -68,11 +70,15 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: pollData.msg || 'Error while polling Coze chat' });
       }
       status = pollData.data.status;
+      if (pollData.data.last_error) {
+        lastError = pollData.data.last_error;
+      }
       attempts++;
     }
 
     if (status !== 'completed') {
-      return res.status(500).json({ error: `Chat did not complete (status: ${status})` });
+      const errorDetail = lastError ? `${lastError.code} - ${lastError.msg}` : 'No detailed error message';
+      return res.status(500).json({ error: `Chat failed (status: ${status}). Details: ${errorDetail}` });
     }
 
     // 3️⃣ Retrieve messages to get the assistant's answer
